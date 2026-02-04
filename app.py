@@ -76,14 +76,14 @@ def aggregate_group(g: pd.DataFrame) -> dict:
         val = None
         if col in concat_cols:
             s = g[col].astype(str)
-            vals = [x.replace("\n"," ") for x in s if x is not None and str(x) != ""]
-            # Duplikate entfernen, Reihenfolge erhalten
+            # warum: Whitespace normalisieren, Duplikate stabil entfernen, dann mit | verketten
+            vals = [x.replace("\n"," ").strip() for x in s if x is not None and str(x) != ""]
             seen = set()
             uniq = []
             for x in vals:
                 if x not in seen:
                     seen.add(x); uniq.append(x)
-            val = " ".join(uniq)
+            val = "|".join(uniq)  # <- geändert: Pipe statt Leerzeichen
         elif col in minmax_cols:
             s = pd.to_numeric(g[col].str.replace(",",".", regex=False), errors="coerce").dropna()
             if len(s) == 0:
